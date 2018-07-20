@@ -1,8 +1,8 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}:"
 
-LINUX_VERSION ?= "3.16.56"
+LINUX_VERSION ?= "3.16.57"
 KBRANCH ?= "odroidc2-v3.16.y"
-SRCREV ?= "0d11c06623d1db74966bdad3253e0faf9bf274cd"
+SRCREV ?= "c822ddfcff23ffcaf5893574ca134d6c3e6f9395"
 KBUILD_DEFCONFIG_odroid-c2 = "odroidc2_defconfig"
 
 require linux-stable.inc
