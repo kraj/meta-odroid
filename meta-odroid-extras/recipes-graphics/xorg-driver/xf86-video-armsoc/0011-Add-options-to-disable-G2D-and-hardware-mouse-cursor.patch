@@ -1,0 +1,198 @@
+From 32a037362b09d5eb708dc3eea5f7e2b13ea715e5 Mon Sep 17 00:00:00 2001
+From: OtherCrashOverride <OtherCrashOverride@users.noreply.github.com>
+Date: Wed, 31 May 2017 10:51:47 +0000
+Subject: [PATCH 11/12] Add options to disable G2D and hardware mouse cursor.
+
+---
+ src/armsoc_driver.c     | 14 +++++++++++++-
+ src/armsoc_driver.h     |  3 +++
+ src/armsoc_exa_exynos.c | 35 +++++++++++++++++++++++++++--------
+ src/drmmode_display.c   | 28 ++++++++++++++++++----------
+ 4 files changed, 61 insertions(+), 19 deletions(-)
+ mode change 100644 => 100755 src/armsoc_driver.c
+ mode change 100644 => 100755 src/armsoc_driver.h
+
+diff --git a/src/armsoc_driver.c b/src/armsoc_driver.c
+old mode 100644
+new mode 100755
+index 83e74a7..5f5a0a1
+--- a/src/armsoc_driver.c
++++ b/src/armsoc_driver.c
+@@ -2,6 +2,7 @@
+ 
+ /*
+  * Copyright © 2011 Texas Instruments, Inc
++ * Copyright © 2017 OtherCrashOverride
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a
+  * copy of this software and associated documentation files (the "Software"),
+@@ -109,6 +110,8 @@ enum {
+ 	OPTION_DRI_NUM_BUF,
+ 	OPTION_INIT_FROM_FBDEV,
+ 	OPTION_UMP_LOCK,
++	OPTION_NO_G2D,
++	OPTION_NO_HARDWARE_MOUSE,
+ };
+ 
+ /** Supported options. */
+@@ -121,6 +124,8 @@ static const OptionInfoRec ARMSOCOptions[] = {
+ 	{ OPTION_DRI_NUM_BUF, "DRI2MaxBuffers", OPTV_INTEGER, {-1}, FALSE },
+ 	{ OPTION_INIT_FROM_FBDEV, "InitFromFBDev", OPTV_STRING, {0}, FALSE },
+ 	{ OPTION_UMP_LOCK,   "UMP_LOCK",   OPTV_BOOLEAN, {0}, FALSE },
++	{ OPTION_NO_G2D,    "NoG2D",     OPTV_BOOLEAN,{ 0 }, FALSE },
++	{ OPTION_NO_HARDWARE_MOUSE,    "NoHardwareMouse",     OPTV_BOOLEAN,{ 0 }, FALSE },
+ 	{ -1,                NULL,         OPTV_NONE,    {0}, FALSE }
+ };
+ 
+@@ -893,7 +898,14 @@ ARMSOCPreInit(ScrnInfoPtr pScrn, int flags)
+ 			OPTION_UMP_LOCK, FALSE);
+ 	INFO_MSG("umplock is %s",
+ 				pARMSOC->useUmplock ? "Disabled" : "Enabled");
+-
++	pARMSOC->NoG2D = xf86ReturnOptValBool(pARMSOC->pOptionInfo,
++		OPTION_NO_G2D, FALSE);
++	INFO_MSG("G2D is %s",
++		pARMSOC->NoG2D ? "Disabled" : "Enabled");
++	pARMSOC->NoHardwareMouse = xf86ReturnOptValBool(pARMSOC->pOptionInfo,
++		OPTION_NO_HARDWARE_MOUSE, FALSE);
++	INFO_MSG("Hardware Mouse is %s",
++		pARMSOC->NoHardwareMouse ? "Disabled" : "Enabled");
+ 	/*
+ 	 * Select the video modes:
+ 	 */
+diff --git a/src/armsoc_driver.h b/src/armsoc_driver.h
+old mode 100644
+new mode 100755
+index ef2836f..b6a997e
+--- a/src/armsoc_driver.h
++++ b/src/armsoc_driver.h
+@@ -2,6 +2,7 @@
+ 
+ /*
+  * Copyright © 2011 Texas Instruments, Inc
++ * Copyright © 2011 OtherCrashOverride
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a
+  * copy of this software and associated documentation files (the "Software"),
+@@ -133,6 +134,8 @@ struct ARMSOCRec {
+ 
+ 	/** user-configurable option: */
+ 	Bool				NoFlip;
++	Bool				NoG2D;
++	Bool				NoHardwareMouse;
+ 	unsigned			driNumBufs;
+ 
+ 	/** File descriptor of the connection with the DRM. */
+diff --git a/src/armsoc_exa_exynos.c b/src/armsoc_exa_exynos.c
+index ff3d7f7..8a7ae71 100755
+--- a/src/armsoc_exa_exynos.c
++++ b/src/armsoc_exa_exynos.c
+@@ -103,6 +103,12 @@ PrepareSolid(PixmapPtr pPixmap, int alu, Pixel planemask, Pixel fill_color)
+ 	uint32_t dstBpp;
+ 
+ 
++	// Check if G2D is disabled
++	if (!nullExaRec->ctx)
++	{
++		return FALSE;
++	}
++
+ 	// Only GXset operation is supported
+ 	if (alu != GXset)
+ 	{
+@@ -220,6 +226,12 @@ PrepareCopy(PixmapPtr pSrc, PixmapPtr pDst, int xdir, int ydir,
+ 	uint32_t dstBpp;
+ 
+ 
++	// Check if G2D is disabled
++	if (!nullExaRec->ctx)
++	{
++		return FALSE;
++	}
++
+ 	// Only GXcopy operation is supported
+ 	if (alu != GXcopy)
+ 	{
+@@ -418,8 +430,9 @@ InitNullEXA(ScreenPtr pScreen, ScrnInfoPtr pScrn, int fd)
+ 	struct ARMSOCNullEXARec *null_exa;
+ 	struct ARMSOCEXARec *armsoc_exa;
+ 	ExaDriverPtr exa;
++	struct ARMSOCRec *pARMSOC = ARMSOCPTR(pScrn);
+ 
+-	INFO_MSG("Soft EXA mode");
++	INFO_MSG("Exynos G2D EXA mode");
+ 
+ 	null_exa = calloc(1, sizeof(*null_exa));
+ 	if (!null_exa)
+@@ -478,15 +491,21 @@ InitNullEXA(ScreenPtr pScreen, ScrnInfoPtr pScrn, int fd)
+ 
+ 	// Initialize a G2D context
+ 	//INFO_MSG("G2D Initializing.");
+-
+-	null_exa->ctx = g2d_init(fd);
+-	if (!null_exa->ctx) {
+-		ERROR_MSG("exaDriverInit g2d_init failed");
+-		goto free_exa;
++	if (pARMSOC->NoG2D)
++	{
++		INFO_MSG("G2D disabled by option.");
++		null_exa->ctx = NULL;
+ 	}
++	else
++	{
++		null_exa->ctx = g2d_init(fd);
++		if (!null_exa->ctx) {
++			ERROR_MSG("exaDriverInit g2d_init failed");
++			goto free_exa;
++		}
+ 
+-	INFO_MSG("G2D Initialized.");
+-
++		INFO_MSG("G2D Initialized.");
++	}
+ 
+ 	return armsoc_exa;
+ 
+diff --git a/src/drmmode_display.c b/src/drmmode_display.c
+index 4fc6ab6..4611c4a 100755
+--- a/src/drmmode_display.c
++++ b/src/drmmode_display.c
+@@ -821,17 +821,25 @@ Bool drmmode_cursor_init(ScreenPtr pScreen)
+ 	ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
+ 	struct ARMSOCRec *pARMSOC = ARMSOCPTR(pScrn);
+ 
+-	INFO_MSG("HW cursor init()");
+-
+-	switch (pARMSOC->drmmode_interface->cursor_api) {
+-	case HWCURSOR_API_PLANE:
+-		return drmmode_cursor_init_plane(pScreen);
+-	case HWCURSOR_API_STANDARD:
+-		return drmmode_cursor_init_standard(pScreen);
+-	case HWCURSOR_API_NONE:
++	if (pARMSOC->NoHardwareMouse)
++	{
++		INFO_MSG("HW cursor disabled by option.");
+ 		return FALSE;
+-	default:
+-		assert(0);
++	}
++	else
++	{
++		INFO_MSG("HW cursor init()");
++
++		switch (pARMSOC->drmmode_interface->cursor_api) {
++		case HWCURSOR_API_PLANE:
++			return drmmode_cursor_init_plane(pScreen);
++		case HWCURSOR_API_STANDARD:
++			return drmmode_cursor_init_standard(pScreen);
++		case HWCURSOR_API_NONE:
++			return FALSE;
++		default:
++			assert(0);
++		}
+ 	}
+ }
+ 
+-- 
+2.7.4
+

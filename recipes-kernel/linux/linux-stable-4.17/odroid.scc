@@ -1,1 +1,2 @@
 patch 0001-exynos5422-odroidhc1.dts-fix-booting-from-mmc.patch
+patch mali_odroid-xu.patch

@@ -1,0 +1,26 @@
+From 059b134aeb619656aeffff332c2bac19cd56fa46 Mon Sep 17 00:00:00 2001
+From: OtherCrashOverride <OtherCrashOverride@users.noreply.github.com>
+Date: Thu, 9 Mar 2017 10:40:20 +0000
+Subject: [PATCH 04/12] Cleanup G2D on exit.
+
+---
+ src/armsoc_exa_exynos.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/armsoc_exa_exynos.c b/src/armsoc_exa_exynos.c
+index 2f6bb8c..2f5eca4 100755
+--- a/src/armsoc_exa_exynos.c
++++ b/src/armsoc_exa_exynos.c
+@@ -235,6 +235,9 @@ CloseScreen(CLOSE_SCREEN_ARGS_DECL)
+ {
+ 	ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
+ 	struct ARMSOCRec *pARMSOC = ARMSOCPTR(pScrn);
++	struct ARMSOCNullEXARec* nullExaRec = (struct ARMSOCNullEXARec*)pARMSOC->pARMSOCEXA;
++
++	g2d_fini(nullExaRec->ctx);
+ 
+ 	exaDriverFini(pScreen);
+ 	free(((struct ARMSOCNullEXARec *)pARMSOC->pARMSOCEXA)->exa);
+-- 
+2.7.4
+

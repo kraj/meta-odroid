@@ -50,7 +50,7 @@ UBOOT_ENV_CONFIG ?= "${B}/${UBOOT_ENV}.txt"
 
 UBOOT_LOADADDRESS ?= ""
 UBOOT_FDT_LOADADDR ?= ""
-UBOOT_BOOTARGS ?= "${console} root=/dev/${roottype}${rootpart} rw rootwait ${video}"
+UBOOT_BOOTARGS ?= "${console} root=/dev/${roottype}${rootpart} rw rootwait ${video} ${extra_cmdline}"
 UBOOT_KERNEL_NAME ?= ""
 UBOOT_INITRD_NAME ?= ""
 UBOOT_INITRD_ADDR ?= ""
@@ -68,6 +68,7 @@ UBOOT_FILE_TITLE ?= "#"
 UBOOT_DELAY ?= ""
 UBOOT_AUTOBOOT ?= ""
 UBOOT_VIDEO ?= ""
+UBOOT_XTRA_CMDLINE ?= ""
 
 python create_uboot_boot_txt() {
     if d.getVar("USE_BOOTSCR") != "1":
@@ -102,6 +103,9 @@ python create_uboot_boot_txt() {
             if video:
                 cfgfile.write('setenv video \"%s\" \n' % video)
 
+            extra_cmdline = localdata.getVar('UBOOT_XTRA_CMDLINE')
+            if video:
+                cfgfile.write('setenv  extra_cmdline \"%s\" \n' % extra_cmdline)
 
             console = localdata.getVar('UBOOT_CONSOLE')
             if console:

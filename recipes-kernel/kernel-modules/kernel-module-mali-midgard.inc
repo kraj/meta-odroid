@@ -25,3 +25,5 @@ do_install() {
 		${MALI_KCONFIG} \
 		modules_install
 }
+
+COMPATIBLE_MACHINE = "odroid-xu3|odroid-xu3-lite|odroid-xu4"

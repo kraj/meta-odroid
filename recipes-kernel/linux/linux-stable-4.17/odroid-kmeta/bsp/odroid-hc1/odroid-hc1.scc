@@ -1,0 +1,7 @@
+define KMACHINE odroid-hc1
+define KTYPE standard
+define KARCH arm
+
+include ktypes/standard/standard.scc
+
+include bsp/exynos/odroid-exynos-common.scc

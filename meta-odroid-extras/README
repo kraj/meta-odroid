@@ -1,0 +1,6 @@
+# odroid-extras
+
+This layer's purpose it to include all the nonessential bsp meta data like
+
+images:
+odroid-x11-image

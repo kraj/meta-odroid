@@ -1,0 +1,9 @@
+define KMACHINE odroid-c1
+define KTYPE standard
+define KARCH arm
+
+include ktypes/standard/standard.scc
+
+include bsp/meson/meson32-common.scc
+
+include features/input/input.scc

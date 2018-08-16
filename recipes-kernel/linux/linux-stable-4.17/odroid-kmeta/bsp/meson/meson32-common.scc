@@ -1,0 +1,4 @@
+define KFEATURE_DESCRIPTION "Devices/drivers commonly used on Amlogic Meson systems/boards"
+define KFEATURE_COMPATIBILITY board
+
+kconf hardware meson32-common.cfg

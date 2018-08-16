@@ -1,0 +1,9 @@
+define KMACHINE odroid-xu4
+define KTYPE standard
+define KARCH arm
+
+include ktypes/standard/standard.scc
+
+include bsp/exynos/odroid-exynos-common.scc
+
+include features/input/input.scc

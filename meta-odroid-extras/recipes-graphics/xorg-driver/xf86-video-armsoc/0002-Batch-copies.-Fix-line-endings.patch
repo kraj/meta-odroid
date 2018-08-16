@@ -1,0 +1,280 @@
+From 2ab6cf5482cd58065f55803dbfe52e727a0f62e5 Mon Sep 17 00:00:00 2001
+From: OtherCrashOverride <OtherCrashOverride@users.noreply.github.com>
+Date: Thu, 9 Mar 2017 09:54:09 +0000
+Subject: [PATCH 02/12] Batch copies.  Fix line endings.
+
+---
+ src/armsoc_exa_exynos.c | 196 ++++++++++++++++++++++++------------------------
+ 1 file changed, 100 insertions(+), 96 deletions(-)
+
+diff --git a/src/armsoc_exa_exynos.c b/src/armsoc_exa_exynos.c
+index 36889a8..43fc9fc 100755
+--- a/src/armsoc_exa_exynos.c
++++ b/src/armsoc_exa_exynos.c
+@@ -38,9 +38,9 @@
+ #include "exa.h"
+ 
+ /* Exynose G2D */
+-#define __user 
+-#include <uapi/drm/drm.h>
+-#include <uapi/drm/exynos_drm.h>
++#define __user 
++#include <uapi/drm/drm.h>
++#include <uapi/drm/exynos_drm.h>
+ #include "exynos_fimg2d.h"
+ 
+ /* This file has a trivial EXA implementation which accelerates nothing.  It
+@@ -54,9 +54,9 @@ struct ARMSOCNullEXARec {
+ 	struct ARMSOCEXARec base;
+ 	ExaDriverPtr exa;
+ 	/* add any other driver private data here.. */
+-	struct g2d_context* ctx;
+-	PixmapPtr pSource;
+-	int xdir;
++	struct g2d_context* ctx;
++	PixmapPtr pSource;
++	int xdir;
+ 	int ydir;
+ };
+ 
+@@ -70,118 +70,122 @@ static Bool
+ PrepareCopy(PixmapPtr pSrc, PixmapPtr pDst, int xdir, int ydir,
+ 		int alu, Pixel planemask)
+ {
+-	ScrnInfoPtr pScrn = xf86ScreenToScrn(pDst->drawable.pScreen);
+-	struct ARMSOCRec* pARMSOC = ARMSOCPTR(pScrn);
+-	struct ARMSOCNullEXARec* nullExaRec = (struct ARMSOCNullEXARec*)pARMSOC->pARMSOCEXA;
+-
+-	struct ARMSOCPixmapPrivRec* srcPriv = exaGetPixmapDriverPrivate(pSrc);
+-	struct ARMSOCPixmapPrivRec* dstPriv = exaGetPixmapDriverPrivate(pDst);
+-
+-	// If there are no buffer objects, fallback
+-	if (!srcPriv->bo || !dstPriv->bo)
+-	{
+-		return FALSE;
++	ScrnInfoPtr pScrn = xf86ScreenToScrn(pDst->drawable.pScreen);
++	struct ARMSOCRec* pARMSOC = ARMSOCPTR(pScrn);
++	struct ARMSOCNullEXARec* nullExaRec = (struct ARMSOCNullEXARec*)pARMSOC->pARMSOCEXA;
++
++	struct ARMSOCPixmapPrivRec* srcPriv = exaGetPixmapDriverPrivate(pSrc);
++	struct ARMSOCPixmapPrivRec* dstPriv = exaGetPixmapDriverPrivate(pDst);
++
++	// If there are no buffer objects, fallback
++	if (!srcPriv->bo || !dstPriv->bo)
++	{
++		return FALSE;
+ 	}
+ 
+-	// If bo is not 32bit, fallback
+-	if ((armsoc_bo_bpp(srcPriv->bo) != 32) ||
+-		(armsoc_bo_bpp(dstPriv->bo) != 32))
+-	{
+-		return FALSE;
++	// If bo is not 32bit, fallback
++	if ((armsoc_bo_bpp(srcPriv->bo) != 32) ||
++		(armsoc_bo_bpp(dstPriv->bo) != 32))
++	{
++		return FALSE;
+ 	}
+ 
+ #if 0
+-	if (ARMSOCPrepareAccess(pSrc, EXA_PREPARE_SRC) == FALSE)
+-	{
+-		return FALSE;
+-	}
+-
+-	if (ARMSOCPrepareAccess(pDst, EXA_PREPARE_DEST) == FALSE)
+-	{
+-		ARMSOCFinishAccess(pSrc, EXA_PREPARE_SRC);
+-		return FALSE;
+-	}
+-
+-	ARMSOCRegisterExternalAccess(pSrc);
+-	ARMSOCRegisterExternalAccess(pDst);
+-#endif
+-
+-	// Save for later
+-	nullExaRec->pSource = pSrc;
+-	nullExaRec->xdir = xdir;
+-	nullExaRec->ydir = ydir;
+-
+-
+-	//return FALSE;
++	if (ARMSOCPrepareAccess(pSrc, EXA_PREPARE_SRC) == FALSE)
++	{
++		return FALSE;
++	}
++
++	if (ARMSOCPrepareAccess(pDst, EXA_PREPARE_DEST) == FALSE)
++	{
++		ARMSOCFinishAccess(pSrc, EXA_PREPARE_SRC);
++		return FALSE;
++	}
++
++	ARMSOCRegisterExternalAccess(pSrc);
++	ARMSOCRegisterExternalAccess(pDst);
++#endif
++
++	// Save for later
++	nullExaRec->pSource = pSrc;
++	nullExaRec->xdir = xdir;
++	nullExaRec->ydir = ydir;
++
++
++	//return FALSE;
+ 	return TRUE;
+ }
+ 
+-static void Copy(PixmapPtr pDstPixmap, int srcX, int srcY, int dstX, int dstY,
++static void Copy(PixmapPtr pDstPixmap, int srcX, int srcY, int dstX, int dstY,
+ 	int width, int height)
+ {
+-	ScrnInfoPtr pScrn = xf86ScreenToScrn(pDstPixmap->drawable.pScreen);
+-	struct ARMSOCRec* pARMSOC = ARMSOCPTR(pScrn);
+-	struct ARMSOCNullEXARec* nullExaRec = (struct ARMSOCNullEXARec*)pARMSOC->pARMSOCEXA;
+-
+-	struct ARMSOCPixmapPrivRec* srcPriv = exaGetPixmapDriverPrivate(nullExaRec->pSource);
+-	struct ARMSOCPixmapPrivRec* dstPriv = exaGetPixmapDriverPrivate(pDstPixmap);
+-
+-	struct g2d_image srcImage;
+-	struct g2d_image dstImage;
+-	int ret;
+-
+-
+-	memset(&srcImage, 0, sizeof(srcImage));
+-	memset(&dstImage, 0, sizeof(dstImage));
+-
++	ScrnInfoPtr pScrn = xf86ScreenToScrn(pDstPixmap->drawable.pScreen);
++	struct ARMSOCRec* pARMSOC = ARMSOCPTR(pScrn);
++	struct ARMSOCNullEXARec* nullExaRec = (struct ARMSOCNullEXARec*)pARMSOC->pARMSOCEXA;
++
++	struct ARMSOCPixmapPrivRec* srcPriv = exaGetPixmapDriverPrivate(nullExaRec->pSource);
++	struct ARMSOCPixmapPrivRec* dstPriv = exaGetPixmapDriverPrivate(pDstPixmap);
++
++	struct g2d_image srcImage;
++	struct g2d_image dstImage;
++	int ret;
++
++
++	memset(&srcImage, 0, sizeof(srcImage));
++	memset(&dstImage, 0, sizeof(dstImage));
++
+ 
+ 	// Source
+ 	srcImage.color_mode = G2D_COLOR_FMT_ARGB8888 | G2D_ORDER_AXRGB;
+-	srcImage.width = armsoc_bo_width(srcPriv->bo);
+-	srcImage.height = armsoc_bo_height(srcPriv->bo);
++	srcImage.width = armsoc_bo_width(srcPriv->bo);
++	srcImage.height = armsoc_bo_height(srcPriv->bo);
+ 	srcImage.stride = armsoc_bo_pitch(srcPriv->bo);
+-	srcImage.x_dir = (nullExaRec->xdir < 1);
+-	srcImage.y_dir = (nullExaRec->ydir < 1);
+-
+-	srcImage.buf_type = G2D_IMGBUF_GEM;
++	srcImage.x_dir = (nullExaRec->xdir < 1);
++	srcImage.y_dir = (nullExaRec->ydir < 1);
++
++	srcImage.buf_type = G2D_IMGBUF_GEM;
+ 	srcImage.bo[0] = armsoc_bo_handle(srcPriv->bo);
+ 
+ 
+ 	// Destination
+ 	dstImage.color_mode = G2D_COLOR_FMT_ARGB8888 | G2D_ORDER_AXRGB;
+-	dstImage.width = armsoc_bo_width(dstPriv->bo);
+-	dstImage.height = armsoc_bo_height(dstPriv->bo);
++	dstImage.width = armsoc_bo_width(dstPriv->bo);
++	dstImage.height = armsoc_bo_height(dstPriv->bo);
+ 	dstImage.stride = armsoc_bo_pitch(dstPriv->bo);
+-	dstImage.x_dir = (nullExaRec->xdir < 1);
+-	dstImage.y_dir = (nullExaRec->ydir < 1);
+-
+-	dstImage.buf_type = G2D_IMGBUF_GEM;
++	dstImage.x_dir = (nullExaRec->xdir < 1);
++	dstImage.y_dir = (nullExaRec->ydir < 1);
++
++	dstImage.buf_type = G2D_IMGBUF_GEM;
+ 	dstImage.bo[0] = armsoc_bo_handle(dstPriv->bo);
+ 
+ 
+ 	// Copy
+ 	ret = g2d_copy(nullExaRec->ctx, &srcImage, &dstImage, srcX, srcY, dstX, dstY, width, height);
+-	if (ret < 0)
+-	{
+-		//xf86DrvMsg(-1, X_ERROR, "g2d_copy: srcX=%d, srcY=%d, dstX=%d, dstY=%d, width=%d, height=%d | src_bpp=%d, dst_bpp=%d (ret=%d)\n",
+-		//	srcX, srcY, dstX, dstY, width, height, armsoc_bo_bpp(srcPriv->bo), armsoc_bo_bpp(dstPriv->bo), ret);
+-
+-		xf86DrvMsg(-1, X_ERROR, "g2d_copy: srcX=%d, srcY=%d, dstX=%d, dstY=%d, width=%d, height=%d | "
+-			"src_width=%d, src_height=%d src_stride=%d src_xdir=%d src_ydir=%d | "
+-			"dst_width=%d, dst_height=%d dst_stride=%d dst_xdir=%d dst_ydir=%d | "
+-			"(ret=%d)\n",
+-			srcX, srcY, dstX, dstY, width, height, 
+-			srcImage.width, srcImage.height, srcImage.stride, srcImage.x_dir, srcImage.y_dir,
+-			dstImage.width, dstImage.height, dstImage.stride, dstImage.x_dir, dstImage.y_dir,
+-			ret);
++	if (ret < 0)
++	{
++		//xf86DrvMsg(-1, X_ERROR, "g2d_copy: srcX=%d, srcY=%d, dstX=%d, dstY=%d, width=%d, height=%d | src_bpp=%d, dst_bpp=%d (ret=%d)\n",
++		//	srcX, srcY, dstX, dstY, width, height, armsoc_bo_bpp(srcPriv->bo), armsoc_bo_bpp(dstPriv->bo), ret);
++
++		xf86DrvMsg(-1, X_ERROR, "g2d_copy: srcX=%d, srcY=%d, dstX=%d, dstY=%d, width=%d, height=%d | "
++			"src_width=%d, src_height=%d src_stride=%d src_xdir=%d src_ydir=%d | "
++			"dst_width=%d, dst_height=%d dst_stride=%d dst_xdir=%d dst_ydir=%d | "
++			"(ret=%d)\n",
++			srcX, srcY, dstX, dstY, width, height, 
++			srcImage.width, srcImage.height, srcImage.stride, srcImage.x_dir, srcImage.y_dir,
++			dstImage.width, dstImage.height, dstImage.stride, dstImage.x_dir, dstImage.y_dir,
++			ret);
+ 	}
+ 
+-	ret = g2d_exec(nullExaRec->ctx);
++	//ret = g2d_exec(nullExaRec->ctx);
+ }
+ 
+ static void DoneCopy(PixmapPtr pDstPixmap)
+ {
++	ScrnInfoPtr pScrn = xf86ScreenToScrn(pDstPixmap->drawable.pScreen);
++	struct ARMSOCRec* pARMSOC = ARMSOCPTR(pScrn);
++	struct ARMSOCNullEXARec* nullExaRec = (struct ARMSOCNullEXARec*)pARMSOC->pARMSOCEXA;
+ 
++	g2d_exec(nullExaRec->ctx);
+ }
+ 
+ static Bool
+@@ -275,7 +279,7 @@ InitNullEXA(ScreenPtr pScreen, ScrnInfoPtr pScrn, int fd)
+ 	exa->PrepareComposite = PrepareCompositeFail;
+ 
+ 	exa->PrepareCopy = PrepareCopy;
+-	exa->Copy = Copy;
++	exa->Copy = Copy;
+ 	exa->DoneCopy = DoneCopy;
+ 
+ 	if (!exaDriverInit(pScreen, exa)) {
+@@ -287,16 +291,16 @@ InitNullEXA(ScreenPtr pScreen, ScrnInfoPtr pScrn, int fd)
+ 	armsoc_exa->FreeScreen = FreeScreen;
+ 
+ 
+-	// Initialize a G2D context
+-	//INFO_MSG("G2D Initializing.");
+-
+-	null_exa->ctx = g2d_init(fd);
+-	if (!null_exa->ctx) {
++	// Initialize a G2D context
++	//INFO_MSG("G2D Initializing.");
++
++	null_exa->ctx = g2d_init(fd);
++	if (!null_exa->ctx) {
+ 		ERROR_MSG("exaDriverInit g2d_init failed");
+-		goto free_exa;
+-	}
+-
+-	INFO_MSG("G2D Initialized.");
++		goto free_exa;
++	}
++
++	INFO_MSG("G2D Initialized.");
+ 
+ 
+ 	return armsoc_exa;
+-- 
+2.7.4
+

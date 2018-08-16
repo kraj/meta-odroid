@@ -1,0 +1,56 @@
+From ab8678043b84b42b8bc0d0e6dbd5d7f874e22098 Mon Sep 17 00:00:00 2001
+From: OtherCrashOverride <OtherCrashOverride@users.noreply.github.com>
+Date: Sat, 8 Apr 2017 21:07:51 +0000
+Subject: [PATCH 08/12] Enable hardware mouse cursor.
+
+---
+ src/drmmode_display.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+ mode change 100644 => 100755 src/drmmode_display.c
+
+diff --git a/src/drmmode_display.c b/src/drmmode_display.c
+old mode 100644
+new mode 100755
+index 39fa75c..4fc6ab6
+--- a/src/drmmode_display.c
++++ b/src/drmmode_display.c
+@@ -637,6 +637,8 @@ drmmode_cursor_init_plane(ScreenPtr pScreen)
+ 	drmModePlane *ovr;
+ 	int w, h, pad;
+ 	uint32_t handles[4], pitches[4], offsets[4]; /* we only use [0] */
++	struct drm_set_client_cap cap;
++	int io;
+ 
+ 	if (drmmode->cursor) {
+ 		INFO_MSG("cursor already initialized");
+@@ -649,6 +651,17 @@ drmmode_cursor_init_plane(ScreenPtr pScreen)
+ 		return FALSE;
+ 	}
+ 
++	/* Enable universal planes capability */
++	cap.capability = DRM_CLIENT_CAP_UNIVERSAL_PLANES;
++	cap.value = 1;
++
++	io = drmIoctl(drmmode->fd, DRM_IOCTL_SET_CLIENT_CAP, &cap);
++	if (io < 0)
++	{
++		ERROR_MSG("DRM_IOCTL_SET_CLIENT_CAP failed.");
++		return FALSE;
++	}
++
+ 	/* find an unused plane which can be used as a mouse cursor.  Note
+ 	 * that we cheat a bit, in order to not burn one overlay per crtc,
+ 	 * and only show the mouse cursor on one crtc at a time
+@@ -666,7 +679,8 @@ drmmode_cursor_init_plane(ScreenPtr pScreen)
+ 		return FALSE;
+ 	}
+ 
+-	ovr = drmModeGetPlane(drmmode->fd, plane_resources->planes[0]);
++	/* TODO: loop through planes and find the cursor plane */
++	ovr = drmModeGetPlane(drmmode->fd, plane_resources->planes[1]);
+ 	if (!ovr) {
+ 		ERROR_MSG("HW cursor: drmModeGetPlane failed: %s",
+ 					strerror(errno));
+-- 
+2.7.4
+

@@ -1,0 +1,5 @@
+define KFEATURE_DESCRIPTION "Devices/drivers commonly used on Odroid Exynos systems/boards"
+define KFEATURE_COMPATIBILITY board
+
+kconf hardware odroid-exynos-common.cfg
+kconf hardware odroid-exynos-devices.cfg

@@ -1,0 +1,38 @@
+From d90a9382ae3dad895a5d2177868fd287f85b8990 Mon Sep 17 00:00:00 2001
+From: OtherCrashOverride <OtherCrashOverride@users.noreply.github.com>
+Date: Sun, 16 Apr 2017 02:08:25 +0000
+Subject: [PATCH 09/12] Disable solid fill acceleration.
+
+---
+ src/armsoc_exa_exynos.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/src/armsoc_exa_exynos.c b/src/armsoc_exa_exynos.c
+index cbdd3af..705007d 100755
+--- a/src/armsoc_exa_exynos.c
++++ b/src/armsoc_exa_exynos.c
+@@ -64,6 +64,12 @@ struct ARMSOCNullEXARec {
+ static Bool
+ PrepareSolid(PixmapPtr pPixmap, int alu, Pixel planemask, Pixel fill_color)
+ {
++#if 1
++
++	return FALSE;
++
++#else
++
+ 	ScrnInfoPtr pScrn = xf86ScreenToScrn(pPixmap->drawable.pScreen);
+ 	struct ARMSOCRec* pARMSOC = ARMSOCPTR(pScrn);
+ 	struct ARMSOCNullEXARec* nullExaRec = (struct ARMSOCNullEXARec*)pARMSOC->pARMSOCEXA;
+@@ -89,6 +95,8 @@ PrepareSolid(PixmapPtr pPixmap, int alu, Pixel planemask, Pixel fill_color)
+ 	nullExaRec->fillColor = (uint32_t)fill_color;
+ 
+ 	return TRUE;
++
++#endif
+ }
+ 
+ static void
+-- 
+2.7.4
+

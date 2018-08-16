@@ -1,0 +1,45 @@
+From 4e369a4bc02f05300f132e30444fc91f2450ca12 Mon Sep 17 00:00:00 2001
+From: OtherCrashOverride <OtherCrashOverride@users.noreply.github.com>
+Date: Thu, 9 Mar 2017 15:27:02 +0000
+Subject: [PATCH 06/12] Don't batch solid fill operations to avoid overflowing
+ the command queue.
+
+---
+ src/armsoc_exa_exynos.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/src/armsoc_exa_exynos.c b/src/armsoc_exa_exynos.c
+index 438d81e..433287e 100755
+--- a/src/armsoc_exa_exynos.c
++++ b/src/armsoc_exa_exynos.c
+@@ -143,18 +143,18 @@ Solid(PixmapPtr pPixmap, int x1, int y1, int x2, int y2)
+ 			x1, y1, x2, y2, ret);
+ 	}
+ 
+-	//g2d_exec(nullExaRec->ctx);
++	g2d_exec(nullExaRec->ctx);
+ }
+ 
+-static void
+-DoneSolid(PixmapPtr pPixmap)
+-{
+-	ScrnInfoPtr pScrn = xf86ScreenToScrn(pPixmap->drawable.pScreen);
+-	struct ARMSOCRec* pARMSOC = ARMSOCPTR(pScrn);
+-	struct ARMSOCNullEXARec* nullExaRec = (struct ARMSOCNullEXARec*)pARMSOC->pARMSOCEXA;
++static void
++DoneSolid(PixmapPtr pPixmap)
++{
++	//ScrnInfoPtr pScrn = xf86ScreenToScrn(pPixmap->drawable.pScreen);
++	//struct ARMSOCRec* pARMSOC = ARMSOCPTR(pScrn);
++	//struct ARMSOCNullEXARec* nullExaRec = (struct ARMSOCNullEXARec*)pARMSOC->pARMSOCEXA;
+ 
+-	g2d_exec(nullExaRec->ctx);
+-}
++	//g2d_exec(nullExaRec->ctx);
++}
+ 
+ 
+ static Bool
+-- 
+2.7.4
+

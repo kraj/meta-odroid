@@ -4,7 +4,8 @@ SECTION = "libs"
 DEPENDS += "${@bb.utils.contains("DISTRO_FEATURES", "wayland", "virtual/mesa", " ", d)}"
 DEPENDS += "${@bb.utils.contains("DISTRO_FEATURES", "x11", " virtual/libx11 libxext libdrm libxfixes libxdamage", " ", d)}"
 
-PROVIDES += "virtual/egl virtual/libgles1 virtual/libgles2 virtual/libopencl virtual/libgbm"
+#PROVIDES += "virtual/egl virtual/libgles1 virtual/libgles2 virtual/libgbm"
+PROVIDES += "${@bb.utils.contains('DISTRO_FEATURES', 'opengl', 'virtual/egl virtual/libgles1 virtual/libgles2 virtual/libgbm', '', d)}"
 PROVIDES += "${@bb.utils.contains("DISTRO_FEATURES", "wayland", " virtual/libwayland-egl", " ", d)}"
 
 INSANE_SKIP_${PN} = "ldflags dev-so"
@@ -25,15 +26,9 @@ do_compile[noexec] = "1"
 FILES_SOLIBSDEV = ""
 FILES_${PN} += "${libdir}/*.so"
 
-RREPLACES_${PN} += "libegl libegl1 libgles1 libglesv1-cm1 libgles2 libglesv2-2 libgbm"
-RPROVIDES_${PN} += "libegl libegl1 libgles1 libglesv1-cm1 libgles2 libglesv2-2 libgbm"
-RCONFLICTS_${PN} += "libegl libegl1 libgles1 libglesv1-cm1 libgles2 libglesv2-2 libgbm"
+RREPLACES_${PN} += "libegl libegl1 libgles1 libgles2 libglesv2-2 libgbm"
+RPROVIDES_${PN} += "libegl libegl1 libgles1 libgles2 libglesv2-2 libgbm"
+RCONFLICTS_${PN} += "libegl libegl1 libgles1 libgles2 libglesv2-2 libgbm"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 PACKAGES = "${PN} ${PN}-dev"
-
-#because we cannot rely on the fact that all apps will use pkgconfig,
-#make eglplatform.h independent of MESA_EGL_NO_X11_HEADER
-do_install_append() {
-    sed -i -e 's/^#ifdef MESA_EGL_NO_X11_HEADERS$/#if defined(MESA_EGL_NO_X11_HEADERS) || ${@bb.utils.contains('PACKAGECONFIG', 'x11', '0', '1', d)}/' ${D}${includedir}/EGL/eglplatform.h
-}

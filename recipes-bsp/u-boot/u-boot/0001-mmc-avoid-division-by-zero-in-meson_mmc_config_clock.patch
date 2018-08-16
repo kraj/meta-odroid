@@ -21,13 +21,13 @@ Signed-off-by: Armin Kuster <akuster808@gmail.com>
  drivers/mmc/meson_gx_mmc.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/drivers/mmc/meson_gx_mmc.c b/drivers/mmc/meson_gx_mmc.c
-index a2cd5d3..454593e 100644
---- a/drivers/mmc/meson_gx_mmc.c
-+++ b/drivers/mmc/meson_gx_mmc.c
-@@ -35,6 +35,9 @@ static void meson_mmc_config_clock(struct mmc *mmc)
- 	uint32_t meson_mmc_clk = 0;
- 	unsigned int clk, clk_src, clk_div;
+Index: git/drivers/mmc/meson_gx_mmc.c
+===================================================================
+--- git.orig/drivers/mmc/meson_gx_mmc.c
++++ git/drivers/mmc/meson_gx_mmc.c
+@@ -37,6 +37,9 @@ static void meson_mmc_config_clock(struc
+ 	if (!mmc->clock)
+ 		return;
  
 +	if (!mmc->clock)
 +		return;
@@ -35,6 +35,3 @@ index a2cd5d3..454593e 100644
  	/* 1GHz / CLK_MAX_DIV = 15,9 MHz */
  	if (mmc->clock > 16000000) {
  		clk = SD_EMMC_CLKSRC_DIV2;
--- 
-2.7.4
-

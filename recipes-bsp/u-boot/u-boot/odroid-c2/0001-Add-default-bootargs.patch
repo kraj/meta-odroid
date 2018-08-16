@@ -7,13 +7,10 @@ Subject: [PATCH] Add default bootargs
 Signed-off-by: Khem Raj <raj.khem@gmail.com>
 Upstream-Status: Pending
 
- include/configs/meson-gxbb-common.h | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/include/configs/meson-gxbb-common.h b/include/configs/meson-gxbb-common.h
-index d88d42d..a28c3ec 100644
---- a/include/configs/meson-gxbb-common.h
-+++ b/include/configs/meson-gxbb-common.h
+Index: git/include/configs/meson-gx-common.h
+===================================================================
+--- git.orig/include/configs/meson-gx-common.h
++++ git/include/configs/meson-gx-common.h
 @@ -40,6 +40,7 @@
  #include <config_distro_bootcmd.h>
  
@@ -22,6 +19,3 @@ index d88d42d..a28c3ec 100644
  	"fdt_addr_r=0x01000000\0" \
  	"scriptaddr=0x1f000000\0" \
  	"kernel_addr_r=0x01080000\0" \
--- 
-2.7.4
-

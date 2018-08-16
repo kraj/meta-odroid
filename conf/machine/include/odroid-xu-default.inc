@@ -14,6 +14,32 @@ UBOOT_KERNEL_NAME = "zImage"
 
 WKS_FILE ?= "odroid_xu-u-boot.wks"
 
-#IMAGE_BOOT_FILES = "zImage ${UBOOT_SCRIPT} ${KERNEL_DEVICETREE}"
 EXTRA_IMAGEDEPENDS += "secure-odroid"
 MACHINE_FEATURES_append = " alsa screen"
+
+VIRTUAL-RUNTIME_mesa = "mesa" 
+
+PREFERRED_PROVIDER_virtual/egl = "mali-t62x"
+PREFERRED_PROVIDER_virtual/libgbm = "mali-t62x"
+PREFERRED_PROVIDER_virtual/libgles1 = "mali-t62x"
+PREFERRED_PROVIDER_virtual/libgles2 = "mali-t62x"
+PREFERRED_PROVIDER_virtual/libopencl = "mali-t62x"
+PREFERRED_PROVIDER_virtual/libgl = "${VIRTUAL-RUNTIME_mesa}"
+PREFERRED_PROVIDER_virtual/mesa = "${VIRTUAL-RUNTIME_mesa}"
+
+MALI = "\
+    kernel-module-mali-t62x \
+    mali-t62x\
+"
+
+XSERVER ?= " \
+    xserver-xorg \
+    xf86-video-fbdev \
+    xf86-video-modesetting \
+"
+
+XSERVER_append = "  \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'opengl', 'xserver-xorg-extension-glx', '', d)} \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'mali', 'xf86-video-armsoc xserver-xorg-module-exa', '', d)} \
+    xf86-input-evdev \
+"
