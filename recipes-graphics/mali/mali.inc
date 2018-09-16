@@ -9,6 +9,7 @@ PROVIDES += "${@bb.utils.contains('DISTRO_FEATURES', 'opengl', 'virtual/egl virt
 PROVIDES += "${@bb.utils.contains("DISTRO_FEATURES", "wayland", " virtual/libwayland-egl", " ", d)}"
 
 INSANE_SKIP_${PN} = "ldflags dev-so"
+INSANE_SKIP_${PN}_append_libc-musl = " file-rdeps"
 
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 INHIBIT_PACKAGE_STRIP = "1"
