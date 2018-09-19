@@ -26,11 +26,6 @@ PREFERRED_PROVIDER_virtual/libopencl = "${PREFERRED_PROVIDER_virtual/gpu}"
 PREFERRED_PROVIDER_virtual/libgl = "${VIRTUAL-RUNTIME_mesa}"
 PREFERRED_PROVIDER_virtual/mesa = "${VIRTUAL-RUNTIME_mesa}"
 
-MALI = "\
-    kernel-module-mali-kbase \
-    ${PREFERRED_PROVIDER_virtual/gpu} \
-"
-
 XSERVER = " \
     xserver-xorg \
     xf86-video-fbdev \

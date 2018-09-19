@@ -9,14 +9,12 @@ inherit core-image distro_features_check extrausers
 # let's make sure we have a good image..
 REQUIRED_DISTRO_FEATURES = "x11"
 
-MALI ?= ""
 VIRTUAL-RUNTIME_mesa ?= ""
 VIRTUAL-RUNTIME_graphical_init_manager = ""
 
 IMAGE_INSTALL = " \
     ${CORE_IMAGE_BASE_INSTALL} \
     ${XSERVER} \
-    ${@bb.utils.contains('MACHINE_FEATURES', 'mali', '${MALI} ', '', d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', 'opengl', '${VIRTUAL-RUNTIME_mesa} ', '', d)} \
     kernel-modules \
     odroid-edid \
