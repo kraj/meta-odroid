@@ -1,6 +1,6 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-MALI ?= ""
+DEPENDS_append_odroid = " ${@bb.utils.contains('MACHINE_FEATURES', 'mali', 'virtual/gpu', '', d)}"
 
 SRC_URI_append_odroid = " file://10-armsoc.conf"
 SRC_URI_append_odroid = "\
@@ -28,5 +28,3 @@ do_install_append_odroid () {
 }
 
 FILES_{PN}_append_odroid = " ${sysconfdir}/X11/xorg.conf.d"
-
-RDEPENDS_${PN} += " ${@bb.utils.contains('MACHINE_FEATURES', 'mali', '${MALI}', '', d)}"
