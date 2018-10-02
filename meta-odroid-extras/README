@@ -2,5 +2,33 @@
 
 This layer's purpose it to include all the nonessential bsp meta data like
 
+The recipe in this layer needs to have 'x11' in DISTRO_FEATURES 
+to have effect. To enable them, add in configuration file the following line.
+
+  DISTRO_FEATURES_append = " x11"
+
+If meta-odroid-extras is included, but x11 is not enabled as a
+distro feature a warning is printed at parse time:
+
+    You have included the meta-odroid-extras layer, but
+    'x11' has not been enabled in your DISTRO_FEATURES.
+
+If you know what you are doing, this warning can be disabled by setting the following
+variable in your configuration:
+
+  SKIP_META_ODROID_EXTRAS_SANITY_CHECK = 1
+
+Dependencies
+------------
+This layer depends on:
+
+URI: git://github.com/akuster/meta-odroid.git
+branch: master
+revision: HEAD
+
+URI: git://github.com/openembedded/meta-oe.git
+branch: master
+revision: HEAD
+
 images:
 odroid-x11-image

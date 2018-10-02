@@ -1,0 +1,12 @@
+patch 0001-exynos5422-odroidhc1.dts-fix-booting-from-mmc.patch
+patch mali_odroid-xu.patch
+patch 0001-drm-meson-Call-drm_crtc_vblank_on-drm_crtc_vblank_of.patch
+patch 0002-drm-meson-select-dw-hdmi-i2s-audio-for-meson-hdmi.patch
+patch 0003-ASoC-meson-add-meson-audio-core-driver.patch
+patch 0004-ASoC-meson-add-register-definitions.patch
+patch 0005-ASoC-meson-add-aiu-i2s-dma-support.patch
+patch 0006-ASoC-meson-add-initial-i2s-dai-support.patch
+patch 0007-snd-meson-activate-HDMI-audio-path.patch
+patch 0011-ARM64-dts-meson-gx-add-audio-controller-nodes.patch
+patch 0012-ARM64-dts-meson-gxl-add-sound-dai-cells-to-HDMI-node.patch
+patch 0013-ARM64-dts-meson-activate-hdmi-audio-HDMI-enabled-boa.patch

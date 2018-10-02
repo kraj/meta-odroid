@@ -18,9 +18,11 @@ do_install () {
         install -m 755 -d ${D}/${libdir}
         if [ "${USE_X11}" = "yes" ]; then
 		install ${S}/${TYPE}/x11/libmali.so ${D}/${libdir}
-        elif [ "${USE_WL}" = "yes" ]; then
+	fi
+        if [ "${USE_WL}" = "yes" ]; then
 		install ${S}/${TYPE}/wayland/libmali.so ${D}/${libdir}
-        else
+        fi
+        if [ "${USE_DFB}" = "yes" ]; then
 		install ${S}/${TYPE}/fbdev/libmali.so ${D}/${libdir}
         fi
 

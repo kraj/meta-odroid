@@ -30,5 +30,5 @@ do_install () {
 	ln -sf libMali.so ${D}/${libdir}/libOpenCL.so
 }
 
-#RDEPENDS_${PN} += "kernel-module-mali-utgard"
+RDEPENDS_${PN} = "kernel-module-mali-utgard"
 COMPATIBLE_MACHINE = "odroid-c2"

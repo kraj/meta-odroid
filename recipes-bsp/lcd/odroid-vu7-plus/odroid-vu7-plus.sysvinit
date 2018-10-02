@@ -1,0 +1,51 @@
+#!/bin/sh
+
+VENDOR="16b4"
+PRODUCT="0703"
+
+start() {
+    echo -n "Configuring VU7+ LCD: "
+    for DIR in $(find /sys/bus/usb/devices/ -maxdepth 1 -type l); do
+        if [[ -f $DIR/idVendor && -f $DIR/idProduct &&
+            $(cat $DIR/idVendor) == $VENDOR && $(cat $DIR/idProduct) == $PRODUCT ]]; then
+            echo 0 > $DIR/authorized
+            sleep 0.5
+            echo 1 > $DIR/authorized
+        fi
+    done
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+stop() {
+        echo -n "Stopping VU7+ LCD: "
+        for DIR in $(find /sys/bus/usb/devices/ -maxdepth 1 -type l); do
+            if [[ -f $DIR/idVendor && -f $DIR/idProduct &&
+                $(cat $DIR/idVendor) == $VENDOR && $(cat $DIR/idProduct) == $PRODUCT ]]; then
+                echo 0 > $DIR/authorized
+	    fi
+	done
+        [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+restart() {
+        stop
+        sleep 3
+        start
+}
+
+case "$1" in
+        start)
+                start
+                ;;
+        stop)
+                stop
+                ;;
+        restart|reload)
+                restart
+                ;;
+        *)
+                echo "Usage: $0 {start|stop|restart}"
+                exit 1
+esac
+
+exit $?
